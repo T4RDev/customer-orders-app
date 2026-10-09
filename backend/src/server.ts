@@ -53,10 +53,15 @@ if (fs.existsSync(docsPath)) {
   app.use('/docs', express.static(docsPath));
 }
 
+// Redirect /api/docs without trailing slash to /api/docs/ so relative assets load correctly
+app.get('/api/docs', (_req: Request, res: Response) => {
+  res.redirect('/api/docs/');
+});
+
 // Root endpoint: Pure API - Redirect to Swagger Docs for browser, or return JSON
 app.get('/', (req: Request, res: Response) => {
   if (req.accepts('html')) {
-    return res.redirect('/api/docs');
+    return res.redirect('/api/docs/');
   }
   res.json({
     status: 'ok',
