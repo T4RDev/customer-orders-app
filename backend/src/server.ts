@@ -53,22 +53,27 @@ if (fs.existsSync(docsPath)) {
   app.use('/docs', express.static(docsPath));
 }
 
-// Serve Angular frontend if built
-const frontendDistPath = path.join(__dirname, '../../frontend/dist/frontend/browser');
-if (fs.existsSync(frontendDistPath)) {
-  console.log(`[Static] Serving Angular frontend from: ${frontendDistPath}`);
-  app.use(express.static(frontendDistPath));
-
-  app.get('*', (req: Request, res: Response, next: NextFunction) => {
-    if (req.url.startsWith('/api') || req.url.startsWith('/docs')) {
-      return next();
+// Root endpoint: Pure API - Redirect to Swagger Docs for browser, or return JSON
+app.get('/', (req: Request, res: Response) => {
+  if (req.accepts('html')) {
+    return res.redirect('/api/docs');
+  }
+  res.json({
+    status: 'ok',
+    service: 'Customer & Order Management Web API (TypeScript)',
+    version: '1.0.0',
+    docs: '/api/docs',
+    endpoints: {
+      customers: '/api/customers',
+      orders: '/api/orders',
+      health: '/api/health',
+      swagger_json: '/api/swagger.json'
     }
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
   });
-}
+});
 
 // Global 404 handler for API routes
-app.use('/api/*', (req: Request, res: Response) => {
+app.use((req: Request, res: Response) => {
   res.status(404).json({ success: false, error: `Endpoint not found: ${req.method} ${req.originalUrl}` });
 });
 
