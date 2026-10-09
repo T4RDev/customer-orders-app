@@ -31,9 +31,9 @@ export interface ApiResponse<T> {
 })
 export class CustomerService {
   private http = inject(HttpClient);
-  private baseUrl = (typeof window !== 'undefined' && window.location.port === '4200')
-    ? 'http://localhost:3000/api/customers'
-    : '/api/customers';
+  private baseUrl = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+    ? (window.location.port === '4200' ? 'http://localhost:3000/api/customers' : '/api/customers')
+    : 'https://customer-orders-app.onrender.com/api/customers';
 
   getCustomers(): Observable<ApiResponse<Customer[]>> {
     return this.http.get<ApiResponse<Customer[]>>(this.baseUrl);

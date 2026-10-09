@@ -53,7 +53,7 @@
 
             <!-- External Links -->
             <div class="header-links">
-                <a href="/api/docs" target="_blank" class="btn-swagger-link" title="เปิดหน้า Interactive Swagger API Documentation">
+                <a [href]="backendUrl + '/api/docs'" target="_blank" class="btn-swagger-link" title="เปิดหน้า Interactive Swagger API Documentation">
                     <i class="fa-solid fa-bolt"></i>
                     <span>Swagger API Docs</span>
                 </a>
@@ -421,7 +421,7 @@
                     <a href="/docs/ERD/ER_DIAGRAM.svg" target="_blank" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดไฟล์ภาพ SVG เต็มจอ
                     </a>
-                    <a href="/api/swagger.json" target="_blank" class="btn btn-ghost">
+                    <a [href]="backendUrl + '/api/swagger.json'" target="_blank" class="btn btn-ghost">
                         <i class="fa-solid fa-code"></i> OpenAPI JSON
                     </a>
                 </div>

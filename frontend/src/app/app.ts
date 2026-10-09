@@ -17,6 +17,10 @@ export class App implements OnInit, AfterViewInit {
   private customerService = inject(CustomerService);
   private orderService = inject(OrderService);
 
+  backendUrl: string = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+    ? (window.location.port === '4200' ? 'http://localhost:3000' : '')
+    : 'https://customer-orders-app.onrender.com';
+
   // Active navigation tab
   activeTab: 'customers' | 'orders' | 'map' | 'erd' | 'deliverables' = 'customers';
 

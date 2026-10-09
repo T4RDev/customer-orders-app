@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "tool": "ERDPlus",
+  "notation": "chen",
+  "name": "Customer Orders Chen ERD",
+  "shapes": [
+    {
+      "id": "e_customer",
+      "type": "Entity",
+      "name": "Customer",
+      "x": 200,
+      "y": 300,
+      "width": 140,
+      "height": 60
+    },
+    {
+      "id": "e_order",
+      "type": "Entity",
+      "name": "Order",
+      "x": 750,
+      "y": 300,
+      "width": 140,
+      "height": 60
+    },
+    {
+      "id": "r_places",
+      "type": "Relationship",
+      "name": "places",
+      "x": 480,
+      "y": 300,
+      "width": 100,
+      "height": 60,
+      "connections": [
+        { "entityId": "e_customer", "cardinality": "1" },
+        { "entityId": "e_order", "cardinality": "N" }
+      ]
+    },
+    { "id": "a_c_id", "type": "Attribute", "name": "id", "isKey": true, "entityId": "e_customer", "x": 100, "y": 180 },
+    { "id": "a_c_fn", "type": "Attribute", "name": "first_name", "entityId": "e_customer", "x": 220, "y": 160 },
+    { "id": "a_c_ln", "type": "Attribute", "name": "last_name", "entityId": "e_customer", "x": 340, "y": 180 },
+    { "id": "a_c_ph", "type": "Attribute", "name": "phone", "entityId": "e_customer", "x": 70, "y": 300 },
+    { "id": "a_c_em", "type": "Attribute", "name": "email", "entityId": "e_customer", "x": 100, "y": 440 },
+    { "id": "a_c_ad", "type": "Attribute", "name": "address", "entityId": "e_customer", "x": 220, "y": 460 },
+    { "id": "a_c_km", "type": "Attribute", "name": "distance_km", "entityId": "e_customer", "x": 340, "y": 440 },
+    { "id": "a_o_id", "type": "Attribute", "name": "id", "isKey": true, "entityId": "e_order", "x": 650, "y": 180 },
+    { "id": "a_o_cd", "type": "Attribute", "name": "order_code", "entityId": "e_order", "x": 770, "y": 160 },
+    { "id": "a_o_bx", "type": "Attribute", "name": "box_count", "entityId": "e_order", "x": 890, "y": 180 },
+    { "id": "a_o_pr", "type": "Attribute", "name": "total_price", "entityId": "e_order", "x": 930, "y": 300 },
+    { "id": "a_o_km", "type": "Attribute", "name": "distance_km", "entityId": "e_order", "x": 650, "y": 440 },
+    { "id": "a_o_st", "type": "Attribute", "name": "status", "entityId": "e_order", "x": 770, "y": 460 },
+    { "id": "a_o_dt", "type": "Attribute", "name": "order_date", "entityId": "e_order", "x": 890, "y": 440 }
+  ]
+}
