@@ -1,0 +1,825 @@
+<div class="app-layout">
+    <!-- Toast Alert -->
+    <div *ngIf="toast" class="toast-notification" [ngClass]="toast.type">
+        <i class="fa" [ngClass]="toast.type === 'success' ? 'fa-circle-check' : (toast.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info')"></i>
+        <span>{{ toast.message }}</span>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-badge">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <div class="brand-info">
+                    <div class="brand-title-wrap">
+                        <span class="brand-title">ระบบจัดการลูกค้าและคำสั่งซื้อ</span>
+                        <span class="brand-tag">มมส. ขามเรียง</span>
+                    </div>
+                    <span class="brand-sub">Customer &amp; Orders Delivery System</span>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="nav-pills">
+                <button class="nav-pill-btn" [class.active]="activeTab === 'customers'" (click)="setTab('customers')">
+                    <i class="fa-solid fa-users"></i>
+                    <span>จัดการลูกค้า</span>
+                    <span class="pill-badge">{{ customers.length }}</span>
+                </button>
+
+                <button class="nav-pill-btn" [class.active]="activeTab === 'orders'" (click)="setTab('orders')">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>รายการสั่งซื้อ</span>
+                    <span class="pill-badge">{{ orders.length }}</span>
+                </button>
+
+                <button class="nav-pill-btn" [class.active]="activeTab === 'map'" (click)="setTab('map')">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>แผนที่รัศมีการจัดส่ง</span>
+                </button>
+
+                <button class="nav-pill-btn" [class.active]="activeTab === 'erd'" (click)="setTab('erd')">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>ผังฐานข้อมูล (ERD)</span>
+                </button>
+
+                <button class="nav-pill-btn" [class.active]="activeTab === 'deliverables'" (click)="setTab('deliverables')">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>เอกสารและสมาชิก</span>
+                </button>
+            </nav>
+
+            <!-- External Links -->
+            <div class="header-links">
+                <a href="/api/docs" target="_blank" class="btn-swagger-link" title="เปิดหน้า Interactive Swagger API Documentation">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Swagger API Docs</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-body">
+
+        <!-- ======================================================== -->
+        <!-- TAB 1: CUSTOMERS (จัดการลูกค้า) -->
+        <!-- ======================================================== -->
+        <section *ngIf="activeTab === 'customers'" class="tab-content">
+            <!-- Page Title & Meta -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">ข้อมูลลูกค้า</h1>
+                    <p class="page-desc">จัดการข้อมูลส่วนตัว พิกัดที่อยู่ และตรวจสอบระยะทางจากจุดศูนย์กลาง มหาวิทยาลัยมหาสารคาม</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" (click)="openCreateCustomerModal()">
+                        <i class="fa-solid fa-user-plus"></i> เพิ่มลูกค้าใหม่
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Summary Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fa-solid fa-users"></i></div>
+                    <div class="kpi-meta">
+                        <span class="kpi-label">ลูกค้าทั้งหมดในระบบ</span>
+                        <span class="kpi-value">{{ customers.length }} <small>คน</small></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card" [class.active-kpi]="isCustomerNearbyActive">
+                    <div class="kpi-icon green"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="kpi-meta">
+                        <span class="kpi-label">ลูกค้าในระยะ 1 กม. (รอบ มมส.)</span>
+                        <span class="kpi-value text-emerald">{{ nearbyCustomersCount }} <small>คน</small></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon purple"><i class="fa-solid fa-bag-shopping"></i></div>
+                    <div class="kpi-meta">
+                        <span class="kpi-label">จุดศูนย์กลางอ้างอิง</span>
+                        <span class="kpi-value small-text">มมส. ขามเรียง</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="toolbar-card">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" class="search-input" placeholder="ค้นหาด้วยชื่อ หรือนามสกุลลูกค้า..." [(ngModel)]="customerSearchQuery" (keyup.enter)="searchCustomers()" />
+                    <button *ngIf="customerSearchQuery" class="btn-clear" (click)="clearCustomerSearch()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button class="btn btn-secondary" (click)="searchCustomers()">ค้นหา</button>
+                </div>
+
+                <div class="filter-group">
+                    <!-- Segmented Filter: All vs 1km Only -->
+                    <div class="segmented-control">
+                        <button type="button" class="segment-btn" [class.active]="!isCustomerNearbyActive" (click)="loadCustomers()">
+                            ลูกค้าทั้งหมด
+                        </button>
+                        <button type="button" class="segment-btn highlight-green" [class.active]="isCustomerNearbyActive" (click)="searchCustomersNearby()">
+                            <i class="fa-solid fa-crosshairs"></i> เฉพาะในระยะ 1 กม.
+                        </button>
+                    </div>
+
+                    <button class="btn btn-ghost" (click)="loadCustomers()" title="รีเฟรชข้อมูล">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Filter Banner (When 1 KM filter is on) -->
+            <div *ngIf="isCustomerNearbyActive" class="filter-status-banner green">
+                <i class="fa-solid fa-filter"></i>
+                <span>กำลังแสดงเฉพาะลูกค้าที่อยู่ในระยะไม่เกิน <strong>1 กิโลเมตร</strong> จาก มมส. ขามเรียง (เรียงลำดับจากใกล้ไปไกลที่สุด)</span>
+                <button class="btn-link" (click)="loadCustomers()">แสดงลูกค้าทั้งหมด</button>
+            </div>
+
+            <!-- Customer Data Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="70">รหัส</th>
+                            <th>ชื่อ - นามสกุล</th>
+                            <th>เบอร์โทรศัพท์ / อีเมล</th>
+                            <th>ที่อยู่จัดส่ง</th>
+                            <th width="150" class="text-center">ระยะทางจาก มมส.</th>
+                            <th width="120" class="text-center">คำสั่งซื้อสะสม</th>
+                            <th width="120" class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of customers">
+                            <td class="font-mono text-muted">#{{ c.id }}</td>
+                            <td>
+                                <div class="customer-name-cell">
+                                    <span class="customer-avatar">{{ c.first_name.charAt(0) }}</span>
+                                    <div>
+                                        <div class="font-medium text-main">{{ c.first_name }} {{ c.last_name }}</div>
+                                        <span class="text-subtle font-mono text-xs">ลงทะเบียน: {{ c.created_at | date:'dd/MM/yyyy' }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="contact-line"><i class="fa-solid fa-phone text-muted text-xs"></i> {{ c.phone || '-' }}</div>
+                                <div class="contact-line text-xs text-subtle"><i class="fa-solid fa-envelope text-muted text-xs"></i> {{ c.email || '-' }}</div>
+                            </td>
+                            <td class="address-cell" [title]="c.address || ''">{{ c.address || '-' }}</td>
+                            <td class="text-center">
+                                <span class="distance-chip" [class.in-range]="(c.distance_km || 0) <= 1.0">
+                                    <i class="fa-solid fa-route"></i> {{ c.distance_km || 0 }} กม.
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="count-pill">{{ c.total_orders || 0 }} รายการ</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <button class="btn-icon" title="แก้ไขข้อมูลลูกค้า" (click)="openEditCustomerModal(c)">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="btn-icon danger" title="ลบลูกค้า" (click)="deleteCustomer(c)">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="customers.length === 0">
+                            <td colspan="7" class="empty-state-cell">
+                                <i class="fa-solid fa-user-slash empty-icon"></i>
+                                <div class="empty-title">ไม่พบข้อมูลลูกค้า</div>
+                                <p class="empty-text">ไม่มีรายชื่อลูกค้าตามเงื่อนไขที่ค้นหา หรือยังไม่มีข้อมูลในระบบ</p>
+                                <button class="btn btn-secondary mt-3" (click)="loadCustomers()">ล้างตัวกรองและโหลดข้อมูลใหม่</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 2: ORDERS (รายการสั่งซื้อ) -->
+        <!-- ======================================================== -->
+        <section *ngIf="activeTab === 'orders'" class="tab-content">
+            <!-- Page Title & Meta -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">รายการคำสั่งซื้อ</h1>
+                    <p class="page-desc">ติดตามคำสั่งซื้อ ตรวจสอบจำนวนกล่อง คำนวณยอดเงิน และกรองคำสั่งซื้อในระยะจัดส่ง 2 กิโลเมตร</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" (click)="openCreateOrderModal()">
+                        <i class="fa-solid fa-plus"></i> เพิ่มคำสั่งซื้อใหม่
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Summary Cards -->
+            <div class="kpi-grid four-col">
+                <div class="kpi-card">
+                    <div class="kpi-icon amber"><i class="fa-solid fa-receipt"></i></div>
+                    <div class="kpi-meta">
+                        <span class="kpi-label">คำสั่งซื้อทั้งหมด</span>
+                        <span class="kpi-value">{{ orders.length }} <small>รายการ</small></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fa-solid fa-money-bill-wave"></i></div>
+                    <div class="kpi-meta">
+                        <span class="kpi-label">ยอดขายรวมทั้งหมด</span>
+                        <span class="kpi-value text-emerald">฿{{ totalRevenue | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card" [class.active-kpi]="isOrderNearbyActive">
+                    <div class="kpi-icon orange"><i class="fa-solid fa-truck-fast"></i></div>
+                    <div class="kpi-meta">
+                        <span class="kpi-label">ในระยะจัดส่ง 2 กม. (รอบ มมส.)</span>
+                        <span class="kpi-value text-amber">{{ nearbyOrdersCount }} <small>รายการ</small></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <div class="kpi-meta">
+                        <span class="kpi-label">จำนวนกล่องรวม</span>
+                        <span class="kpi-value">{{ totalBoxes }} <small>กล่อง</small></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar & Operations -->
+            <div class="toolbar-card">
+                <!-- Segmented Filter: All vs 2km Only -->
+                <div class="segmented-control">
+                    <button type="button" class="segment-btn" [class.active]="!isOrderNearbyActive" (click)="loadOrders()">
+                        คำสั่งซื้อทั้งหมด
+                    </button>
+                    <button type="button" class="segment-btn highlight-amber" [class.active]="isOrderNearbyActive" (click)="searchOrdersNearby()">
+                        <i class="fa-solid fa-location-crosshairs"></i> เฉพาะในระยะส่ง 2 กม.
+                    </button>
+                </div>
+
+                <div class="toolbar-actions">
+                    <button class="btn btn-seed" (click)="seedOrders(25)" [disabled]="isLoading" title="จำลองคำสั่งซื้อ 25 รายการพร้อมข้อมูลลูกค้า">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> สุ่มข้อมูลทดสอบ (25 รายการ)
+                    </button>
+
+                    <button class="btn btn-outline-danger" (click)="clearAllOrders()" [disabled]="orders.length === 0 || isLoading">
+                        <i class="fa-solid fa-trash-can"></i> ล้างข้อมูลทั้งหมด
+                    </button>
+
+                    <button class="btn btn-ghost" (click)="loadOrders()" title="รีเฟรชข้อมูล">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Filter Banner (When 2 KM filter is on) -->
+            <div *ngIf="isOrderNearbyActive" class="filter-status-banner amber">
+                <i class="fa-solid fa-filter"></i>
+                <span>กำลังแสดงเฉพาะคำสั่งซื้อที่มีระยะจัดส่งไม่เกิน <strong>2 กิโลเมตร</strong> จาก มมส. ขามเรียง (เรียงลำดับจากใกล้ไปไกลที่สุด)</span>
+                <button class="btn-link" (click)="loadOrders()">แสดงคำสั่งซื้อทั้งหมด</button>
+            </div>
+
+            <!-- Orders Data Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="140">รหัสคำสั่งซื้อ</th>
+                            <th>ลูกค้าผู้สั่งซื้อ</th>
+                            <th width="170" class="text-center">จำนวนกล่อง</th>
+                            <th width="110">ราคา/กล่อง</th>
+                            <th width="120">ยอดรวม</th>
+                            <th width="140" class="text-center">ระยะจัดส่ง (กม.)</th>
+                            <th width="110">สถานะ</th>
+                            <th width="100" class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let o of orders">
+                            <td>
+                                <div class="font-mono font-medium text-main">{{ o.order_code }}</div>
+                                <div class="text-subtle text-xs">{{ o.order_date | date:'dd/MM/yyyy HH:mm' }}</div>
+                            </td>
+                            <td>
+                                <div class="font-medium text-main">{{ o.customer_name }}</div>
+                                <div class="text-xs text-subtle"><i class="fa-solid fa-phone text-xs"></i> {{ o.customer_phone || '-' }}</div>
+                            </td>
+                            <td class="text-center">
+                                <!-- Inline Box Count Stepper -->
+                                <div class="inline-stepper">
+                                    <button class="stepper-step minus" (click)="quickAdjustOrderBoxCount(o, -1)" [disabled]="o.box_count <= 1" title="ลด 1 กล่อง">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </button>
+                                    <span class="stepper-val" (click)="openBoxCountModal(o)" title="คลิกเพื่อแก้ไขตัวเลข">
+                                        <strong>{{ o.box_count }}</strong> <small>กล่อง</small>
+                                    </span>
+                                    <button class="stepper-step plus" (click)="quickAdjustOrderBoxCount(o, 1)" title="เพิ่ม 1 กล่อง">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="font-mono text-subtle">฿{{ o.price_per_box | number:'1.2-2' }}</td>
+                            <td class="font-mono font-semibold text-emerald">฿{{ o.total_price | number:'1.2-2' }}</td>
+                            <td class="text-center">
+                                <span class="distance-chip" [class.in-range-amber]="(o.distance_km || 0) <= 2.0">
+                                    <i class="fa-solid fa-truck"></i> {{ o.distance_km || 0 }} กม.
+                                </span>
+                                <div *ngIf="o.notes" class="text-xs text-subtle mt-1" [title]="o.notes">หมายเหตุ: {{ o.notes }}</div>
+                            </td>
+                            <td>
+                                <span class="status-badge" [ngClass]="o.status.toLowerCase()">
+                                    {{ o.status === 'Pending' ? 'รอดำเนินการ' : (o.status === 'Delivered' ? 'จัดส่งแล้ว' : o.status) }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <button class="btn-icon" title="แก้ไขคำสั่งซื้อ / จำนวนกล่อง" (click)="openBoxCountModal(o)">
+                                        <i class="fa-solid fa-boxes-stacked"></i>
+                                    </button>
+                                    <button class="btn-icon danger" title="ลบคำสั่งซื้อ" (click)="deleteOrder(o)">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="orders.length === 0">
+                            <td colspan="8" class="empty-state-cell">
+                                <i class="fa-solid fa-box-open empty-icon"></i>
+                                <div class="empty-title">ยังไม่มีรายการสั่งซื้อในระบบ</div>
+                                <p class="empty-text">คุณสามารถสร้างคำสั่งซื้อใหม่ หรือคลิกปุ่มจำลองข้อมูล 25 รายการเพื่อทดสอบระบบได้ทันที</p>
+                                <button class="btn btn-seed mt-3" (click)="seedOrders(25)">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> จำลองคำสั่งซื้อ 25 รายการ
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 3: MAP (แผนที่รัศมีการจัดส่ง) -->
+        <!-- ======================================================== -->
+        <section *ngIf="activeTab === 'map'" class="tab-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">แผนที่รัศมีการจัดส่งเชิงพื้นที่</h1>
+                    <p class="page-desc">แสดงตำแหน่งลูกค้าและจุดส่งสินค้าบนแผนที่จริง โดยมีจุดศูนย์กลางที่ มหาวิทยาลัยมหาสารคาม (มมส. ขามเรียง)</p>
+                </div>
+            </div>
+
+            <!-- Map Information Legend -->
+            <div class="map-legend-panel">
+                <div class="legend-group">
+                    <span class="legend-badge red"><i class="fa-solid fa-university"></i> ศูนย์กลาง มมส. ขามเรียง</span>
+                    <span class="legend-badge green"><span class="color-dot green"></span> รัศมีลูกค้า 1 กม.</span>
+                    <span class="legend-badge amber"><span class="color-dot amber"></span> รัศมีจัดส่ง 2 กม.</span>
+                    <span class="legend-badge blue"><span class="color-dot blue"></span> ลูกค้า ({{ customers.length }})</span>
+                    <span class="legend-badge orange"><span class="color-dot orange"></span> คำสั่งซื้อ ({{ orders.length }})</span>
+                </div>
+                <div class="legend-actions">
+                    <button class="btn btn-sm btn-ghost" (click)="searchCustomersNearby(); setTab('customers')">
+                        <i class="fa-solid fa-users"></i> ดูกรองลูกค้า 1 กม.
+                    </button>
+                    <button class="btn btn-sm btn-ghost" (click)="searchOrdersNearby(); setTab('orders')">
+                        <i class="fa-solid fa-cart-shopping"></i> ดูกรองคำสั่งซื้อ 2 กม.
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Display Container -->
+            <div class="map-wrapper">
+                <div id="leaflet-map" class="map-canvas"></div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 4: ER DIAGRAM (ผังฐานข้อมูล) -->
+        <!-- ======================================================== -->
+        <section *ngIf="activeTab === 'erd'" class="tab-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">ผังโครงสร้างฐานข้อมูล (ER Diagram)</h1>
+                    <p class="page-desc">แบบจำลองข้อมูลเชิงสัมพันธ์ (Relational Data Model) ออกแบบผ่านแพลตฟอร์ม ERDPlus ตามสัญลักษณ์ Chen Notation แสดงความสัมพันธ์แบบ 1:N ระหว่าง Customer และ Order</p>
+                </div>
+                <div class="page-actions">
+                    <a href="/docs/ERD/ER_DIAGRAM.svg" target="_blank" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดไฟล์ภาพ SVG เต็มจอ
+                    </a>
+                    <a href="/api/swagger.json" target="_blank" class="btn btn-ghost">
+                        <i class="fa-solid fa-code"></i> OpenAPI JSON
+                    </a>
+                </div>
+            </div>
+
+            <!-- ER Diagram Card -->
+            <div class="erd-viewer-box">
+                <div class="erd-image-container">
+                    <iframe src="/docs/ERD/ER_DIAGRAM.svg" class="erd-frame" frameborder="0"></iframe>
+                </div>
+
+                <div class="schema-spec-grid">
+                    <div class="schema-card">
+                        <div class="schema-header">
+                            <i class="fa-solid fa-user text-primary"></i>
+                            <h3>ตาราง Customer (ลูกค้า)</h3>
+                        </div>
+                        <p class="schema-desc">จัดเก็บข้อมูลส่วนตัว ที่อยู่ และพิกัดภูมิศาสตร์ของลูกค้า</p>
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>คอลัมน์</th>
+                                    <th>ชนิดข้อมูล</th>
+                                    <th>ข้อจำกัด</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>id</code></td>
+                                    <td>INTEGER</td>
+                                    <td>Primary Key, Auto-increment</td>
+                                </tr>
+                                <tr>
+                                    <td><code>first_name</code></td>
+                                    <td>TEXT</td>
+                                    <td>NOT NULL (ชื่อ)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>last_name</code></td>
+                                    <td>TEXT</td>
+                                    <td>NOT NULL (นามสกุล)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>phone</code></td>
+                                    <td>TEXT</td>
+                                    <td>เบอร์โทรศัพท์</td>
+                                </tr>
+                                <tr>
+                                    <td><code>email</code></td>
+                                    <td>TEXT</td>
+                                    <td>อีเมล</td>
+                                </tr>
+                                <tr>
+                                    <td><code>address</code></td>
+                                    <td>TEXT</td>
+                                    <td>ที่อยู่</td>
+                                </tr>
+                                <tr>
+                                    <td><code>latitude</code></td>
+                                    <td>REAL</td>
+                                    <td>NOT NULL (พิกัดละติจูด)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>longitude</code></td>
+                                    <td>REAL</td>
+                                    <td>NOT NULL (พิกัดลองจิจูด)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>created_at</code></td>
+                                    <td>DATETIME</td>
+                                    <td>DEFAULT CURRENT_TIMESTAMP</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="schema-card">
+                        <div class="schema-header">
+                            <i class="fa-solid fa-box text-amber"></i>
+                            <h3>ตาราง Order (รายการสั่งซื้อ)</h3>
+                        </div>
+                        <p class="schema-desc">จัดเก็บรายการสั่งซื้อ จำนวนกล่อง ราคา ยอดรวม และพิกัดจุดส่งของ</p>
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>คอลัมน์</th>
+                                    <th>ชนิดข้อมูล</th>
+                                    <th>ข้อจำกัด</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>id</code></td>
+                                    <td>INTEGER</td>
+                                    <td>Primary Key, Auto-increment</td>
+                                </tr>
+                                <tr>
+                                    <td><code>order_code</code></td>
+                                    <td>TEXT</td>
+                                    <td>UNIQUE, NOT NULL</td>
+                                </tr>
+                                <tr>
+                                    <td><code>customer_id</code></td>
+                                    <td>INTEGER</td>
+                                    <td>Foreign Key -> Customer(id) ON DELETE CASCADE</td>
+                                </tr>
+                                <tr>
+                                    <td><code>box_count</code></td>
+                                    <td>INTEGER</td>
+                                    <td>NOT NULL, CHECK (box_count >= 1)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>price_per_box</code></td>
+                                    <td>REAL</td>
+                                    <td>NOT NULL (ราคาต่อกล่อง)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>total_price</code></td>
+                                    <td>REAL</td>
+                                    <td>NOT NULL (ยอดรวมคำนวณ)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>delivery_latitude</code></td>
+                                    <td>REAL</td>
+                                    <td>NOT NULL (พิกัดจุดส่ง)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>delivery_longitude</code></td>
+                                    <td>REAL</td>
+                                    <td>NOT NULL (พิกัดจุดส่ง)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>status</code></td>
+                                    <td>TEXT</td>
+                                    <td>DEFAULT 'Pending'</td>
+                                </tr>
+                                <tr>
+                                    <td><code>notes</code></td>
+                                    <td>TEXT</td>
+                                    <td>หมายเหตุการจัดส่ง</td>
+                                </tr>
+                                <tr>
+                                    <td><code>order_date</code></td>
+                                    <td>DATETIME</td>
+                                    <td>DEFAULT CURRENT_TIMESTAMP</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="relationship-card">
+                    <div class="schema-header">
+                        <i class="fa-solid fa-link text-emerald"></i>
+                        <h3>ความสัมพันธ์ระหว่างข้อมูล (Relationship)</h3>
+                    </div>
+                    <p class="relation-statement">
+                        <strong>Customer (1)</strong> &mdash;&mdash;&lt; <em>places</em> &gt;&mdash;&mdash; <strong>Order (N)</strong>
+                    </p>
+                    <ul class="relation-points">
+                        <li><strong>Cardinality:</strong> แบบ One-to-Many (1:N)</li>
+                        <li>ลูกค้า 1 คน สามารถมีประวัติการสั่งซื้อได้ตั้งแต่ 0 ถึงหลายรายการ (Optional Many)</li>
+                        <li>คำสั่งซื้อ 1 รายการ ต้องผูกโยงกับลูกค้า 1 คนเสมอ (Mandatory One)</li>
+                        <li>เมื่อลบข้อมูลลูกค้า รายการสั่งซื้อของลูกค้านั้นจะถูกลบตามโดยอัตโนมัติ (CASCADE) เพื่อความสมบูรณ์ของฐานข้อมูล (Referential Integrity)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 5: DELIVERABLES & TEAM (เอกสารและสมาชิก) -->
+        <!-- ======================================================== -->
+        <section *ngIf="activeTab === 'deliverables'" class="tab-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">เอกสารโครงงานและสมาชิกผู้จัดทำ</h1>
+                    <p class="page-desc">ดาวน์โหลดเอกสารรายงานโครงการฉบับสมบูรณ์ ซอร์สโค้ด และรายชื่อสมาชิกกลุ่ม</p>
+                </div>
+            </div>
+
+            <!-- Deliverable Download Cards -->
+            <div class="download-grid">
+                <div class="download-card">
+                    <div class="download-icon red"><i class="fa-solid fa-file-pdf"></i></div>
+                    <div class="download-info">
+                        <h3>เอกสารรายงานโครงการ (PDF Report)</h3>
+                        <p>รวมข้อมูลสมาชิกกลุ่ม, ภาพ ER Diagram จาก ERDPlus, สเปกตารางฐานข้อมูล, คู่มือการใช้งาน API ทุกเส้นทาง พร้อมตัวอย่าง Request/Response</p>
+                        <div class="download-btn-wrap">
+                            <a href="/docs/Project_Customer_Orders_Report.pdf" target="_blank" class="btn btn-primary">
+                                <i class="fa-solid fa-download"></i> ดาวน์โหลดรายงาน PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="download-card">
+                    <div class="download-icon blue"><i class="fa-solid fa-file-zipper"></i></div>
+                    <div class="download-info">
+                        <h3>ซอร์สโค้ดโครงการ (.zip)</h3>
+                        <p>ไฟล์ซอร์สโค้ดฉบับสมบูรณ์ (Backend TypeScript + SQLite + Frontend Angular) บีบอัดพร้อมนำไปรันต่อได้ทันที</p>
+                        <div class="download-btn-wrap">
+                            <a href="/docs/Customer_Orders_Source.zip" class="btn btn-secondary">
+                                <i class="fa-solid fa-file-arrow-down"></i> ดาวน์โหลด Source Code (.zip)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Members Table (Exactly the 4 students, NO artificial roles!) -->
+            <div class="team-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-id-card text-primary"></i> ข้อมูลสมาชิกกลุ่ม</h3>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th width="80" class="text-center">ลำดับ</th>
+                                <th width="220">รหัสนิสิต</th>
+                                <th>ชื่อ - นามสกุล</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let m of groupMembers; let i = index">
+                                <td class="text-center font-mono text-muted">{{ i + 1 }}</td>
+                                <td class="font-mono font-semibold text-primary">{{ m.id }}</td>
+                                <td class="font-medium text-main">{{ m.name }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ======================================================== -->
+    <!-- MODAL: ADD / EDIT CUSTOMER -->
+    <!-- ======================================================== -->
+    <div *ngIf="customerModalOpen" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid" [ngClass]="customerModalMode === 'create' ? 'fa-user-plus' : 'fa-user-pen'"></i>
+                    <span>{{ customerModalMode === 'create' ? 'เพิ่มข้อมูลลูกค้าใหม่' : 'แก้ไขข้อมูลลูกค้า' }}</span>
+                </div>
+                <button class="btn-modal-close" (click)="closeCustomerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label">ชื่อ *</label>
+                        <input type="text" class="field-input" [(ngModel)]="customerForm.first_name" placeholder="ชื่อลูกค้า" required />
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label">นามสกุล *</label>
+                        <input type="text" class="field-input" [(ngModel)]="customerForm.last_name" placeholder="นามสกุล" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label">เบอร์โทรศัพท์</label>
+                        <input type="text" class="field-input" [(ngModel)]="customerForm.phone" placeholder="เช่น 081-234-5678" />
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label">อีเมล</label>
+                        <input type="email" class="field-input" [(ngModel)]="customerForm.email" placeholder="example@mail.com" />
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">ที่อยู่</label>
+                    <textarea class="field-textarea" rows="2" [(ngModel)]="customerForm.address" placeholder="ที่อยู่ หรือสถานที่จัดส่ง"></textarea>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">จุดที่ตั้งในพื้นที่ มมส. ขามเรียง</label>
+                    <select class="field-select" (change)="onCustomerLandmarkSelect($event)">
+                        <option *ngFor="let p of presetLocations" [value]="p.name">{{ p.name }}</option>
+                    </select>
+                    <span class="field-hint">ระบบจะคำนวณระยะทาง (กม.) จากจุดศูนย์กลาง มมส. โดยอัตโนมัติ</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-ghost" (click)="closeCustomerModal()">ยกเลิก</button>
+                <button class="btn btn-primary" (click)="saveCustomer()" [disabled]="isLoading">
+                    <i class="fa-solid fa-check"></i> บันทึกข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL: ADD ORDER -->
+    <!-- ======================================================== -->
+    <div *ngIf="orderModalOpen" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-cart-plus"></i>
+                    <span>เพิ่มรายการสั่งซื้อใหม่</span>
+                </div>
+                <button class="btn-modal-close" (click)="closeOrderModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-field">
+                    <label class="field-label">เลือกลูกค้าผู้สั่งซื้อ *</label>
+                    <select class="field-select" [(ngModel)]="orderForm.customer_id" (ngModelChange)="onOrderCustomerChange($event)">
+                        <option *ngFor="let c of customers" [value]="c.id">
+                            #{{ c.id }} - {{ c.first_name }} {{ c.last_name }} ({{ c.phone || 'ไม่มีเบอร์' }})
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label">จำนวนกล่องที่สั่งซื้อ *</label>
+                        <input type="number" min="1" class="field-input" [(ngModel)]="orderForm.box_count" required />
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label">ราคาต่อกล่อง (บาท)</label>
+                        <input type="number" step="10" class="field-input" [(ngModel)]="orderForm.price_per_box" />
+                    </div>
+                </div>
+
+                <div class="total-preview-box">
+                    <span>ยอดรวมทั้งสิ้น:</span>
+                    <strong>฿{{ ((orderForm.box_count || 1) * (orderForm.price_per_box || 150)) | number:'1.2-2' }}</strong>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">จุดส่งสินค้าในพื้นที่ มมส. ขามเรียง</label>
+                    <select class="field-select" (change)="onOrderLandmarkSelect($event)">
+                        <option *ngFor="let p of presetLocations" [value]="p.name">{{ p.name }}</option>
+                    </select>
+                    <span class="field-hint">ระบบจะคำนวณระยะจัดส่ง (กม.) จากจุดศูนย์กลาง มมส. โดยอัตโนมัติ</span>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label">หมายเหตุการจัดส่ง</label>
+                    <input type="text" class="field-input" [(ngModel)]="orderForm.notes" placeholder="เช่น โทรแจ้งล่วงหน้า 15 นาที" />
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-ghost" (click)="closeOrderModal()">ยกเลิก</button>
+                <button class="btn btn-primary" (click)="saveOrder()" [disabled]="isLoading">
+                    <i class="fa-solid fa-check"></i> บันทึกคำสั่งซื้อ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL: EDIT BOX COUNT (ปรับจำนวนกล่อง) -->
+    <!-- ======================================================== -->
+    <div *ngIf="boxCountModalOpen" class="modal-overlay">
+        <div class="modal-box modal-box-sm">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>แก้ไขจำนวนกล่อง</span>
+                </div>
+                <button class="btn-modal-close" (click)="closeBoxCountModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="modal-body text-center">
+                <div class="text-subtle text-sm">คำสั่งซื้อ: <strong>{{ selectedOrder?.order_code }}</strong></div>
+                <div class="text-main font-medium mt-1">ผู้สั่ง: {{ selectedOrder?.customer_name }}</div>
+
+                <div class="big-stepper-box">
+                    <button class="btn-step-big" (click)="adjustBoxCount(-5)">-5</button>
+                    <button class="btn-step-big" (click)="adjustBoxCount(-1)">-1</button>
+
+                    <input type="number" min="1" class="stepper-big-input" [(ngModel)]="boxCountEditValue" />
+
+                    <button class="btn-step-big" (click)="adjustBoxCount(1)">+1</button>
+                    <button class="btn-step-big" (click)="adjustBoxCount(5)">+5</button>
+                </div>
+
+                <div class="new-total-box">
+                    <span>ยอดรวมคำนวณใหม่:</span>
+                    <span class="new-total-price">฿{{ (boxCountEditValue * (selectedOrder?.price_per_box || 150)) | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-ghost" (click)="closeBoxCountModal()">ยกเลิก</button>
+                <button class="btn btn-primary" (click)="saveBoxCount()" [disabled]="isLoading">
+                    <i class="fa-solid fa-check"></i> บันทึกจำนวนกล่อง
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

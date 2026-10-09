@@ -1,0 +1,18 @@
+{
+  "name": "customer-orders-project",
+  "version": "1.0.0",
+  "description": "Customer and Orders Web API with Angular Dashboard and Geospatial Radius",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:frontend",
+    "start": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "test:backend": "cd backend && npm test",
+    "pack:zip": "powershell -ExecutionPolicy Bypass -File ./scripts/package_zip.ps1"
+  },
+  "keywords": ["nodejs", "express", "sqlite", "angular", "geospatial", "haversine"],
+  "author": "Project Team",
+  "license": "ISC"
+}

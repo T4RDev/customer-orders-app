@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="100%" height="100%">
+  <defs>
+    <style><![CDATA[
+      /* Canvas Background matching User Reference */
+      .canvas-bg { fill: #2b82fe; }
+      
+      /* Main Title and Subtitle */
+      .title-box { fill: #ffffff; stroke: #000000; stroke-width: 3; rx: 8; }
+      .title-text { font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif; font-size: 20px; font-weight: 800; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+      .subtitle-text { font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif; font-size: 13px; font-weight: 500; fill: #475569; text-anchor: middle; dominant-baseline: central; }
+      
+      /* Solid Black Connection Lines */
+      .er-line { stroke: #000000; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+      .rel-line { stroke: #000000; stroke-width: 4; stroke-linecap: round; }
+      
+      /* Entity Rectangles (Red / Coral with Black Border) */
+      .entity-rect { fill: #ff6565; stroke: #000000; stroke-width: 3.5; rx: 6; }
+      .entity-title { font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif; font-size: 18px; font-weight: 900; fill: #ffffff; text-anchor: middle; dominant-baseline: central; letter-spacing: 0.5px; }
+      .entity-sub { font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif; font-size: 13px; font-weight: 700; fill: #fef08a; text-anchor: middle; dominant-baseline: central; }
+
+      /* Relationship Diamond (Purple / Magenta with Black Border) */
+      .rel-diamond { fill: #d946ef; stroke: #000000; stroke-width: 3.5; stroke-linejoin: round; }
+      .rel-title { font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif; font-size: 17px; font-weight: 900; fill: #ffffff; text-anchor: middle; dominant-baseline: central; }
+      .rel-sub { font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif; font-size: 12px; font-weight: 700; fill: #fdf4ff; text-anchor: middle; dominant-baseline: central; }
+
+      /* Attribute Pills / Ovals (Light Blue / Pale Cyan with Black Border) */
+      .attr-pill { fill: #dbeafe; stroke: #000000; stroke-width: 3; rx: 18; ry: 18; }
+      .attr-pill-pk { fill: #fed7aa; stroke: #000000; stroke-width: 3.5; rx: 18; ry: 18; }
+      .attr-pill-highlight { fill: #dcfce7; stroke: #000000; stroke-width: 3; rx: 18; ry: 18; }
+      
+      .attr-label { font-family: 'Consolas', 'Segoe UI', Tahoma, sans-serif; font-size: 13px; font-weight: 700; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+      .attr-label-pk { font-family: 'Consolas', 'Segoe UI', Tahoma, sans-serif; font-size: 13px; font-weight: 900; fill: #000000; text-anchor: middle; dominant-baseline: central; text-decoration: underline; }
+
+      /* Cardinality Badges */
+      .card-badge { fill: #ffffff; stroke: #000000; stroke-width: 2.5; rx: 6; }
+      .card-num { font-family: 'Segoe UI', sans-serif; font-size: 18px; font-weight: 900; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+      
+      /* Legend Tag */
+      .legend-pill { fill: rgba(255,255,255,0.92); stroke: #000000; stroke-width: 2; rx: 8; }
+      .legend-text { font-family: 'Prompt', sans-serif; font-size: 12px; font-weight: 700; fill: #1e293b; text-anchor: middle; dominant-baseline: central; }
+    ]]></style>
+  </defs>
+
+  <!-- Blue Background (Exactly like user sketch) -->
+  <rect width="1200" height="750" class="canvas-bg"/>
+
+  <!-- Top Title Banner -->
+  <g transform="translate(250, 25)">
+    <rect width="700" height="60" class="title-box"/>
+    <text x="350" y="22" class="title-text">Entity-Relationship Diagram (Chen Notation - ERDPlus)</text>
+    <text x="350" y="44" class="subtitle-text">ระบบจัดการข้อมูลลูกค้า และคำสั่งซื้อ (Customer and Orders Database Model)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- CONNECTION LINES: CUSTOMER ATTRIBUTES (LEFT SIDE) -->
+  <!-- Entity Center: (260, 420) -->
+  <!-- ======================================================== -->
+  <!-- Top Attributes -->
+  <line x1="260" y1="420" x2="110" y2="180" class="er-line"/> <!-- id (PK) -->
+  <line x1="260" y1="420" x2="260" y2="170" class="er-line"/> <!-- first_name -->
+  <line x1="260" y1="420" x2="410" y2="190" class="er-line"/> <!-- last_name -->
+
+  <!-- Side Attribute -->
+  <line x1="260" y1="420" x2="75"  y2="420" class="er-line"/> <!-- phone -->
+
+  <!-- Bottom Attributes -->
+  <line x1="260" y1="420" x2="105" y2="640" class="er-line"/> <!-- email -->
+  <line x1="260" y1="420" x2="260" y2="660" class="er-line"/> <!-- address -->
+  <line x1="260" y1="420" x2="415" y2="630" class="er-line"/> <!-- distance_km -->
+
+  <!-- ======================================================== -->
+  <!-- CONNECTION LINES: CENTRAL RELATIONSHIP (1:N) -->
+  <!-- Customer to Diamond to Order -->
+  <!-- ======================================================== -->
+  <line x1="355" y1="420" x2="515" y2="420" class="rel-line"/>
+  <line x1="685" y1="420" x2="845" y2="420" class="rel-line"/>
+
+  <!-- ======================================================== -->
+  <!-- CONNECTION LINES: ORDER ATTRIBUTES (RIGHT SIDE) -->
+  <!-- Entity Center: (940, 420) -->
+  <!-- ======================================================== -->
+  <!-- Top Attributes -->
+  <line x1="940" y1="420" x2="790" y2="180" class="er-line"/> <!-- id (PK) -->
+  <line x1="940" y1="420" x2="940" y2="170" class="er-line"/> <!-- order_code -->
+  <line x1="940" y1="420" x2="1090" y2="190" class="er-line"/> <!-- box_count -->
+
+  <!-- Side Attribute -->
+  <line x1="940" y1="420" x2="1120" y2="420" class="er-line"/> <!-- total_price -->
+
+  <!-- Bottom Attributes -->
+  <line x1="940" y1="420" x2="790" y2="640" class="er-line"/> <!-- distance_km -->
+  <line x1="940" y1="420" x2="940" y2="660" class="er-line"/> <!-- status -->
+  <line x1="940" y1="420" x2="1090" y2="630" class="er-line"/> <!-- order_date -->
+
+
+  <!-- ======================================================== -->
+  <!-- ENTITY 1: CUSTOMER (LEFT RECTANGLE) -->
+  <!-- Center: (260, 420), Width: 190, Height: 80 -->
+  <!-- ======================================================== -->
+  <rect x="165" y="380" width="190" height="80" class="entity-rect"/>
+  <text x="260" y="410" class="entity-title">CUSTOMER</text>
+  <text x="260" y="434" class="entity-sub">(ลูกค้า)</text>
+
+  <!-- Cardinality 1 Badge -->
+  <rect x="380" y="395" width="40" height="34" class="card-badge"/>
+  <text x="400" y="412" class="card-num">1</text>
+
+
+  <!-- ======================================================== -->
+  <!-- RELATIONSHIP: PLACES (CENTER DIAMOND) -->
+  <!-- Center: (600, 420), Points: Top, Right, Bottom, Left -->
+  <!-- ======================================================== -->
+  <polygon points="600,345 685,420 600,495 515,420" class="rel-diamond"/>
+  <text x="600" y="412" class="rel-title">Places</text>
+  <text x="600" y="433" class="rel-sub">(สั่งซื้อ)</text>
+
+
+  <!-- ======================================================== -->
+  <!-- ENTITY 2: ORDER (RIGHT RECTANGLE) -->
+  <!-- Center: (940, 420), Width: 190, Height: 80 -->
+  <!-- ======================================================== -->
+  <rect x="845" y="380" width="190" height="80" class="entity-rect"/>
+  <text x="940" y="410" class="entity-title">ORDER</text>
+  <text x="940" y="434" class="entity-sub">(รายการสั่งซื้อ)</text>
+
+  <!-- Cardinality N Badge -->
+  <rect x="780" y="395" width="40" height="34" class="card-badge"/>
+  <text x="800" y="412" class="card-num">N</text>
+
+
+  <!-- ======================================================== -->
+  <!-- ATTRIBUTES: CUSTOMER (OVALS / PILLS) -->
+  <!-- ======================================================== -->
+  <!-- 1. id (PK) -->
+  <rect x="45" y="156" width="130" height="48" class="attr-pill-pk"/>
+  <text x="110" y="180" class="attr-label-pk">id (PK)</text>
+
+  <!-- 2. first_name -->
+  <rect x="195" y="146" width="130" height="48" class="attr-pill"/>
+  <text x="260" y="170" class="attr-label">first_name</text>
+
+  <!-- 3. last_name -->
+  <rect x="345" y="166" width="130" height="48" class="attr-pill"/>
+  <text x="410" y="190" class="attr-label">last_name</text>
+
+  <!-- 4. phone -->
+  <rect x="20" y="396" width="110" height="48" class="attr-pill"/>
+  <text x="75" y="420" class="attr-label">phone</text>
+
+  <!-- 5. email -->
+  <rect x="45" y="616" width="120" height="48" class="attr-pill"/>
+  <text x="105" y="640" class="attr-label">email</text>
+
+  <!-- 6. address -->
+  <rect x="195" y="636" width="130" height="48" class="attr-pill"/>
+  <text x="260" y="660" class="attr-label">address</text>
+
+  <!-- 7. distance_km (KM) -->
+  <rect x="345" y="606" width="140" height="48" class="attr-pill-highlight"/>
+  <text x="415" y="630" class="attr-label" font-weight="900">distance_km</text>
+
+
+  <!-- ======================================================== -->
+  <!-- ATTRIBUTES: ORDER (OVALS / PILLS) -->
+  <!-- ======================================================== -->
+  <!-- 1. id (PK) -->
+  <rect x="725" y="156" width="130" height="48" class="attr-pill-pk"/>
+  <text x="790" y="180" class="attr-label-pk">id (PK)</text>
+
+  <!-- 2. order_code -->
+  <rect x="870" y="146" width="140" height="48" class="attr-pill"/>
+  <text x="940" y="170" class="attr-label">order_code</text>
+
+  <!-- 3. box_count (กล่อง) -->
+  <rect x="1025" y="166" width="130" height="48" class="attr-pill-highlight"/>
+  <text x="1090" y="190" class="attr-label" font-weight="900">box_count</text>
+
+  <!-- 4. total_price -->
+  <rect x="1055" y="396" width="130" height="48" class="attr-pill"/>
+  <text x="1120" y="420" class="attr-label">total_price</text>
+
+  <!-- 5. distance_km (KM) -->
+  <rect x="720" y="616" width="140" height="48" class="attr-pill-highlight"/>
+  <text x="790" y="640" class="attr-label" font-weight="900">distance_km</text>
+
+  <!-- 6. status -->
+  <rect x="875" y="636" width="130" height="48" class="attr-pill"/>
+  <text x="940" y="660" class="attr-label">status</text>
+
+  <!-- 7. order_date -->
+  <rect x="1025" y="606" width="130" height="48" class="attr-pill"/>
+  <text x="1090" y="630" class="attr-label">order_date</text>
+
+  <!-- ======================================================== -->
+  <!-- BOTTOM LEGEND BAR -->
+  <!-- ======================================================== -->
+  <g transform="translate(180, 706)">
+    <rect width="840" height="34" class="legend-pill"/>
+    <text x="420" y="17" class="legend-text">
+      สัญลักษณ์ Peter Chen: เอนทิตี (Entity) สี่เหลี่ยม | ความสัมพันธ์ (Relationship) สี่เหลี่ยมข้าวหลามตัด | คุณลักษณะ (Attribute) วงรี | ขีดเส้นใต้ = Primary Key
+    </text>
+  </g>
+</svg>

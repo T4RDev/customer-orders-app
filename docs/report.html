@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>รายงานโครงงาน Web API ข้อมูลลูกค้าและรายการสั่งซื้อ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Inter:wght@400;600;700&display=swap');
+
+        @page {
+            size: A4;
+            margin: 15mm 15mm 20mm 15mm;
+
+            @bottom-right {
+                content: counter(page);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Prompt', 'Inter', sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+            background: #ffffff;
+            font-size: 13px;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        /* Cover Page */
+        .cover-container {
+            min-height: 250mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 3px double #2563eb;
+            padding: 50px 40px;
+            border-radius: 8px;
+        }
+
+        .cover-header {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .university-tag {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .project-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1e3a8a;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .project-subtitle {
+            font-size: 15px;
+            color: #475569;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .badge-pills {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pill {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #bfdbfe;
+        }
+
+        .cover-middle {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin: 30px 0;
+        }
+
+        .cover-middle h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 14px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 6px;
+            display: inline-block;
+        }
+
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .members-table th {
+            background: #e2e8f0;
+            color: #334155;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .members-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+        }
+
+        .cover-footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 16px;
+        }
+
+        /* Section Styles */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3a8a;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 6px;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        p {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0 20px 0;
+            font-size: 11.5px;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #cbd5e1;
+        }
+
+        .data-table td {
+            padding: 7px 10px;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .method-get {
+            color: #0284c7;
+            font-weight: bold;
+        }
+
+        .method-post {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .method-put {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .method-patch {
+            color: #9333ea;
+            font-weight: bold;
+        }
+
+        .method-delete {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        /* Code & JSON Blocks */
+        pre {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 10.5px;
+            overflow-x: auto;
+            margin: 8px 0 14px 0;
+            line-height: 1.4;
+        }
+
+        code {
+            font-family: 'Consolas', monospace;
+            background: #f1f5f9;
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: #0f172a;
+            font-size: 11px;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* ERD Image Box */
+        .erd-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            border-radius: 6px;
+            background: #f8fafc;
+        }
+
+        .erd-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .callout {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 10px 14px;
+            margin: 12px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= COVER PAGE ================= -->
+    <div class="cover-container">
+        <div class="cover-header">
+            <div class="university-tag">รายงานโครงงานประจำวิชา (Web Application &amp; API Programming)</div>
+            <h1 class="project-title">ระบบ Web API จัดการข้อมูลลูกค้า และ รายการสั่งซื้อ<br>พร้อมระบบค้นหาพิกัดเชิงพื้นที่ (Geospatial Radius)</h1>
+        </div>
+
+        <div class="cover-middle">
+            <h3>1.1 ข้อมูลสมาชิกกลุ่ม</h3>
+            <table class="members-table">
+                <thead>
+                    <tr>
+                        <th width="10%">ลำดับ</th>
+                        <th width="30%">รหัสนิสิต</th>
+                        <th>ชื่อ - นามสกุล</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td><strong>67011212163</strong></td>
+                        <td>ทนงศักดิ์ ตรีศาตร์</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>67011212071</strong></td>
+                        <td>อติรุจ พุทธิ</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>67011212022</strong></td>
+                        <td>จาตุรงค์ อุส่าห์ดี</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>67011212190</strong></td>
+                        <td>พิมผกา ศรีเสน</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="cover-footer">
+            <p>ภาคเรียนที่ 1 ปีการศึกษา 2569</p>
+            <p>ส่งมอบพร้อม Source Code และ Interactive Swagger Documentation</p>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- ================= SECTION 1: ER DIAGRAM ================= -->
+    <h2 class="section-title">1. แบบจำลองข้อมูล (ER Diagram - Chen Notation) ออกแบบจาก ERDPlus</h2>
+    <p>
+        แบบจำลองข้อมูลได้รับการออกแบบตามมาตรฐาน <strong>Chen Notation</strong> (Peter Chen ER Model) บนเว็บไซต์
+        <a href="https://erdplus.com/">https://erdplus.com/</a> เพื่อรองรับการจัดเก็บข้อมูลลูกค้าและรายการสั่งซื้อ
+        โครงสร้างประกอบด้วย <strong>เอนทิตี (สี่เหลี่ยมสีแดง)</strong> คือ <code>CUSTOMER</code> และ <code>ORDER</code>,
+        <strong>ความสัมพันธ์ (สี่เหลี่ยมข้าวหลามตัดสีม่วง)</strong> คือ <code>Places</code> แบบ <strong>1 ต่อ กลุ่ม (1:N)</strong>,
+        และ <strong>คุณลักษณะ (วงรีสีฟ้า)</strong> โดยมี <code>id</code> เป็น Primary Key (ขีดเส้นใต้) และมีคุณลักษณะ <code>distance_km</code> (ระยะทาง KM)
+    </p>
+
+    <div class="erd-container" style="background: transparent; border: none; padding: 0;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="100%" height="auto" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <defs>
+                <style>
+                    <![CDATA[
+                    .canvas-bg {
+                        fill: #2b82fe;
+                    }
+
+                    .title-box {
+                        fill: #ffffff;
+                        stroke: #000000;
+                        stroke-width: 3;
+                        rx: 8;
+                    }
+
+                    .title-text {
+                        font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 20px;
+                        font-weight: 800;
+                        fill: #0f172a;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+
+                    .subtitle-text {
+                        font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 13px;
+                        font-weight: 500;
+                        fill: #475569;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+
+                    .er-line {
+                        stroke: #000000;
+                        stroke-width: 3.5;
+                        stroke-linecap: round;
+                        stroke-linejoin: round;
+                    }
+
+                    .rel-line {
+                        stroke: #000000;
+                        stroke-width: 4;
+                        stroke-linecap: round;
+                    }
+
+                    .entity-rect {
+                        fill: #ff6565;
+                        stroke: #000000;
+                        stroke-width: 3.5;
+                        rx: 6;
+                    }
+
+                    .entity-title {
+                        font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 18px;
+                        font-weight: 900;
+                        fill: #ffffff;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .entity-sub {
+                        font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 13px;
+                        font-weight: 700;
+                        fill: #fef08a;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+
+                    .rel-diamond {
+                        fill: #d946ef;
+                        stroke: #000000;
+                        stroke-width: 3.5;
+                        stroke-linejoin: round;
+                    }
+
+                    .rel-title {
+                        font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 17px;
+                        font-weight: 900;
+                        fill: #ffffff;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+
+                    .rel-sub {
+                        font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 12px;
+                        font-weight: 700;
+                        fill: #fdf4ff;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+
+                    .attr-pill {
+                        fill: #dbeafe;
+                        stroke: #000000;
+                        stroke-width: 3;
+                        rx: 18;
+                        ry: 18;
+                    }
+
+                    .attr-pill-pk {
+                        fill: #fed7aa;
+                        stroke: #000000;
+                        stroke-width: 3.5;
+                        rx: 18;
+                        ry: 18;
+                    }
+
+                    .attr-pill-highlight {
+                        fill: #dcfce7;
+                        stroke: #000000;
+                        stroke-width: 3;
+                        rx: 18;
+                        ry: 18;
+                    }
+
+                    .attr-label {
+                        font-family: 'Consolas', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 13px;
+                        font-weight: 700;
+                        fill: #000000;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+
+                    .attr-label-pk {
+                        font-family: 'Consolas', 'Segoe UI', Tahoma, sans-serif;
+                        font-size: 13px;
+                        font-weight: 900;
+                        fill: #000000;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                        text-decoration: underline;
+                    }
+
+                    .card-badge {
+                        fill: #ffffff;
+                        stroke: #000000;
+                        stroke-width: 2.5;
+                        rx: 6;
+                    }
+
+                    .card-num {
+                        font-family: 'Segoe UI', sans-serif;
+                        font-size: 18px;
+                        font-weight: 900;
+                        fill: #000000;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+
+                    .legend-pill {
+                        fill: rgba(255, 255, 255, 0.92);
+                        stroke: #000000;
+                        stroke-width: 2;
+                        rx: 8;
+                    }
+
+                    .legend-text {
+                        font-family: 'Prompt', sans-serif;
+                        font-size: 12px;
+                        font-weight: 700;
+                        fill: #1e293b;
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                    }
+                    ]]>
+                </style>
+            </defs>
+
+            <!-- Blue Background -->
+            <rect width="1200" height="750" class="canvas-bg" />
+
+            <!-- Top Title Banner -->
+            <g transform="translate(250, 25)">
+                <rect width="700" height="60" class="title-box" />
+                <text x="350" y="22" class="title-text">Entity-Relationship Diagram (Chen Notation - ERDPlus)</text>
+                <text x="350" y="44" class="subtitle-text">ระบบจัดการข้อมูลลูกค้า และคำสั่งซื้อ (Customer and Orders Database Model)</text>
+            </g>
+
+            <!-- Customer Connections (Left) -->
+            <line x1="260" y1="420" x2="110" y2="180" class="er-line" />
+            <line x1="260" y1="420" x2="260" y2="170" class="er-line" />
+            <line x1="260" y1="420" x2="410" y2="190" class="er-line" />
+            <line x1="260" y1="420" x2="75" y2="420" class="er-line" />
+            <line x1="260" y1="420" x2="105" y2="640" class="er-line" />
+            <line x1="260" y1="420" x2="260" y2="660" class="er-line" />
+            <line x1="260" y1="420" x2="415" y2="630" class="er-line" />
+
+            <!-- Central Relationship Lines -->
+            <line x1="355" y1="420" x2="515" y2="420" class="rel-line" />
+            <line x1="685" y1="420" x2="845" y2="420" class="rel-line" />
+
+            <!-- Order Connections (Right) -->
+            <line x1="940" y1="420" x2="790" y2="180" class="er-line" />
+            <line x1="940" y1="420" x2="940" y2="170" class="er-line" />
+            <line x1="940" y1="420" x2="1090" y2="190" class="er-line" />
+            <line x1="940" y1="420" x2="1120" y2="420" class="er-line" />
+            <line x1="940" y1="420" x2="790" y2="640" class="er-line" />
+            <line x1="940" y1="420" x2="940" y2="660" class="er-line" />
+            <line x1="940" y1="420" x2="1090" y2="630" class="er-line" />
+
+            <!-- Entity 1: CUSTOMER -->
+            <rect x="165" y="380" width="190" height="80" class="entity-rect" />
+            <text x="260" y="410" class="entity-title">CUSTOMER</text>
+            <text x="260" y="434" class="entity-sub">(ลูกค้า)</text>
+            <rect x="380" y="395" width="40" height="34" class="card-badge" />
+            <text x="400" y="412" class="card-num">1</text>
+
+            <!-- Relationship: Places -->
+            <polygon points="600,345 685,420 600,495 515,420" class="rel-diamond" />
+            <text x="600" y="412" class="rel-title">Places</text>
+            <text x="600" y="433" class="rel-sub">(สั่งซื้อ)</text>
+
+            <!-- Entity 2: ORDER -->
+            <rect x="845" y="380" width="190" height="80" class="entity-rect" />
+            <text x="940" y="410" class="entity-title">ORDER</text>
+            <text x="940" y="434" class="entity-sub">(รายการสั่งซื้อ)</text>
+            <rect x="780" y="395" width="40" height="34" class="card-badge" />
+            <text x="800" y="412" class="card-num">N</text>
+
+            <!-- Customer Attributes -->
+            <rect x="45" y="156" width="130" height="48" class="attr-pill-pk" />
+            <text x="110" y="180" class="attr-label-pk">id (PK)</text>
+            <rect x="195" y="146" width="130" height="48" class="attr-pill" />
+            <text x="260" y="170" class="attr-label">first_name</text>
+            <rect x="345" y="166" width="130" height="48" class="attr-pill" />
+            <text x="410" y="190" class="attr-label">last_name</text>
+            <rect x="20" y="396" width="110" height="48" class="attr-pill" />
+            <text x="75" y="420" class="attr-label">phone</text>
+            <rect x="45" y="616" width="120" height="48" class="attr-pill" />
+            <text x="105" y="640" class="attr-label">email</text>
+            <rect x="195" y="636" width="130" height="48" class="attr-pill" />
+            <text x="260" y="660" class="attr-label">address</text>
+            <rect x="345" y="606" width="140" height="48" class="attr-pill-highlight" />
+            <text x="415" y="630" class="attr-label" font-weight="900">distance_km</text>
+
+            <!-- Order Attributes -->
+            <rect x="725" y="156" width="130" height="48" class="attr-pill-pk" />
+            <text x="790" y="180" class="attr-label-pk">id (PK)</text>
+            <rect x="870" y="146" width="140" height="48" class="attr-pill" />
+            <text x="940" y="170" class="attr-label">order_code</text>
+            <rect x="1025" y="166" width="130" height="48" class="attr-pill-highlight" />
+            <text x="1090" y="190" class="attr-label" font-weight="900">box_count</text>
+            <rect x="1055" y="396" width="130" height="48" class="attr-pill" />
+            <text x="1120" y="420" class="attr-label">total_price</text>
+            <rect x="720" y="616" width="140" height="48" class="attr-pill-highlight" />
+            <text x="790" y="640" class="attr-label" font-weight="900">distance_km</text>
+            <rect x="875" y="636" width="130" height="48" class="attr-pill" />
+            <text x="940" y="660" class="attr-label">status</text>
+            <rect x="1025" y="606" width="130" height="48" class="attr-pill" />
+            <text x="1090" y="630" class="attr-label">order_date</text>
+
+            <!-- Bottom Legend -->
+            <g transform="translate(180, 706)">
+                <rect width="840" height="34" class="legend-pill" />
+                <text x="420" y="17" class="legend-text">
+                    สัญลักษณ์ Peter Chen: เอนทิตี (Entity) สี่เหลี่ยม | ความสัมพันธ์ (Relationship) สี่เหลี่ยมข้าวหลามตัด | คุณลักษณะ (Attribute) วงรี | ขีดเส้นใต้ = Primary Key
+                </text>
+            </g>
+        </svg>
+    </div>
+
+    <h3 style="font-size: 14px; margin: 12px 0 6px 0; color: #1e3a8a;">1.2 พจนานุกรมข้อมูล (Data Dictionary)</h3>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th width="18%">ตาราง (Table)</th>
+                <th width="20%">ฟิลด์ (Field)</th>
+                <th width="18%">ชนิดข้อมูล (Type)</th>
+                <th width="14%">Key / Constraint</th>
+                <th>คำอธิบาย</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="6"><strong>customers</strong><br><small>(ข้อมูลลูกค้า)</small></td>
+                <td><code>id</code></td>
+                <td>INTEGER</td>
+                <td><strong>PRIMARY KEY</strong></td>
+                <td>รหัสประจำตัวลูกค้า (Auto Increment)</td>
+            </tr>
+            <tr>
+                <td><code>first_name</code>, <code>last_name</code></td>
+                <td>TEXT</td>
+                <td>NOT NULL</td>
+                <td>ชื่อ และ นามสกุลของลูกค้า</td>
+            </tr>
+            <tr>
+                <td><code>phone</code>, <code>email</code></td>
+                <td>TEXT</td>
+                <td>NULL</td>
+                <td>เบอร์โทรศัพท์ และอีเมลสำหรับติดต่อ</td>
+            </tr>
+            <tr>
+                <td><code>address</code></td>
+                <td>TEXT</td>
+                <td>NULL</td>
+                <td>ที่อยู่ปัจจุบันของลูกค้า</td>
+            </tr>
+            <tr>
+                <td><code>latitude</code>, <code>longitude</code></td>
+                <td>REAL</td>
+                <td>NOT NULL</td>
+                <td>พิกัดทางภูมิศาสตร์ของลูกค้า (ใช้คำนวณระยะ 1 กม.)</td>
+            </tr>
+            <tr>
+                <td><code>created_at</code></td>
+                <td>DATETIME</td>
+                <td>DEFAULT CURRENT_TIMESTAMP</td>
+                <td>วันเวลาที่บันทึกลูกค้าเข้าระบบ</td>
+            </tr>
+
+            <tr>
+                <td rowspan="7"><strong>orders</strong><br><small>(รายการสั่งซื้อ)</small></td>
+                <td><code>id</code></td>
+                <td>INTEGER</td>
+                <td><strong>PRIMARY KEY</strong></td>
+                <td>รหัสลำดับคำสั่งซื้อ (Auto Increment)</td>
+            </tr>
+            <tr>
+                <td><code>order_code</code></td>
+                <td>TEXT</td>
+                <td>UNIQUE, NOT NULL</td>
+                <td>รหัสคำสั่งซื้อ (เช่น ORD-20261003-8821-01)</td>
+            </tr>
+            <tr>
+                <td><code>customer_id</code></td>
+                <td>INTEGER</td>
+                <td><strong>FOREIGN KEY</strong></td>
+                <td>อ้างอิงถึง <code>customers.id</code> (ON DELETE CASCADE)</td>
+            </tr>
+            <tr>
+                <td><code>box_count</code></td>
+                <td>INTEGER</td>
+                <td>NOT NULL (&gt;= 1)</td>
+                <td>จำนวนกล่องที่สั่งซื้อในออร์เดอร์นั้น</td>
+            </tr>
+            <tr>
+                <td><code>price_per_box</code>, <code>total_price</code></td>
+                <td>REAL</td>
+                <td>NOT NULL</td>
+                <td>ราคาต่อกล่อง และราคารวมคำนวณอัตโนมัติ</td>
+            </tr>
+            <tr>
+                <td><code>delivery_latitude</code>, <code>delivery_longitude</code></td>
+                <td>REAL</td>
+                <td>NOT NULL</td>
+                <td>พิกัดจุดจัดส่งสินค้า (ใช้คำนวณระยะ 2 กม.)</td>
+            </tr>
+            <tr>
+                <td><code>status</code>, <code>order_date</code></td>
+                <td>TEXT / DATETIME</td>
+                <td>DEFAULT</td>
+                <td>สถานะการจัดส่ง และวันเวลาที่สั่งซื้อ</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout">
+        <strong>คำอธิบายความสัมพันธ์ (Cardinality):</strong>
+        ลูกค้า 1 คน สามารถมีรายการสั่งซื้อได้ตั้งแต่ 0 รายการ จนถึงหลายรายการ (1:N)
+        ในขณะที่คำสั่งซื้อแต่ละรายการจะต้องระบุลูกค้าผู้สั่งอย่างชัดเจน 1 คนเสมอ (Mandatory 1)
+        และเมื่อลบลูกค้า ข้อมูลคำสั่งซื้อของลูกค้ารายนั้นจะถูกลบตาม (CASCADE)
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- ================= SECTION 2: API DOCUMENTATION ================= -->
+    <h2 class="section-title">2. คู่มือการใช้งาน Web API (API Documentation)</h2>
+    <p>
+        ระบบให้บริการผ่านสถาปัตยกรรม RESTful API พัฒนาด้วย NodeJS และ TypeScript โดยส่งและรับข้อมูลในรูปแบบ <code>application/json</code>
+        สามารถทดสอบผ่าน <strong>Swagger UI</strong> ได้ที่ URL: <code>http://localhost:3000/api/docs</code>
+    </p>
+
+    <h3 style="font-size: 14px; margin: 16px 0 6px 0; color: #1e3a8a;">2.1 สรุปภาพรวมเส้นทาง API ทั้งหมด</h3>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th width="10%">Method</th>
+                <th width="32%">Endpoint URL</th>
+                <th width="20%">หัวข้อตามโจทย์</th>
+                <th>หน้าที่การทำงาน</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="method-get">GET</span></td>
+                <td><code>/api/customers</code></td>
+                <td>2.1 จัดการลูกค้า</td>
+                <td>แสดงข้อมูลลูกค้าทุกคนในระบบ พร้อมจำนวนออร์เดอร์</td>
+            </tr>
+            <tr>
+                <td><span class="method-post">POST</span></td>
+                <td><code>/api/customers</code></td>
+                <td>2.1 จัดการลูกค้า</td>
+                <td>เพิ่มข้อมูลลูกค้าใหม่ (ชื่อ, นามสกุล, พิกัด)</td>
+            </tr>
+            <tr>
+                <td><span class="method-put">PUT</span></td>
+                <td><code>/api/customers/:id</code></td>
+                <td>2.1 จัดการลูกค้า</td>
+                <td>แก้ไขข้อมูลลูกค้าตาม ID</td>
+            </tr>
+            <tr>
+                <td><span class="method-delete">DELETE</span></td>
+                <td><code>/api/customers/:id</code></td>
+                <td>2.1 จัดการลูกค้า</td>
+                <td>ลบข้อมูลลูกค้าตาม ID</td>
+            </tr>
+            <tr>
+                <td><span class="method-get">GET</span></td>
+                <td><code>/api/customers/search</code></td>
+                <td>2.2 ค้นหาชื่อ/นามสกุล</td>
+                <td>ค้นหาจากส่วนหนึ่งของชื่อ หรือ นามสกุล (Partial match)</td>
+            </tr>
+            <tr>
+                <td><span class="method-get">GET</span></td>
+                <td><code>/api/customers/nearby</code></td>
+                <td>2.3 ค้นหาระยะ 1 กม.</td>
+                <td>ค้นหาลูกค้าทั้งหมดในรัศมี 1 กิโลเมตร จากพิกัดที่กำหนด</td>
+            </tr>
+            <tr>
+                <td><span class="method-post">POST</span></td>
+                <td><code>/api/orders/seed</code></td>
+                <td>3.1 จำลองออร์เดอร์</td>
+                <td>จำลองรายการสั่งซื้อ 20-30 รายการ ข้อมูลครบถ้วน</td>
+            </tr>
+            <tr>
+                <td><span class="method-get">GET</span></td>
+                <td><code>/api/orders</code></td>
+                <td>3.1 แสดงออร์เดอร์</td>
+                <td>แสดงรายการสั่งซื้อทั้งหมด พร้อมข้อมูลลูกค้าที่สั่ง</td>
+            </tr>
+            <tr>
+                <td><span class="method-post">POST</span></td>
+                <td><code>/api/orders</code></td>
+                <td>3.1.3 เพิ่มออร์เดอร์</td>
+                <td>สร้างคำสั่งซื้อใหม่</td>
+            </tr>
+            <tr>
+                <td><span class="method-patch">PATCH</span></td>
+                <td><code>/api/orders/:id/box-count</code></td>
+                <td>3.1.3 แก้ไขจำนวนกล่อง</td>
+                <td>แก้ไขเฉพาะจำนวนกล่องในแต่ละออร์เดอร์โดยตรง</td>
+            </tr>
+            <tr>
+                <td><span class="method-delete">DELETE</span></td>
+                <td><code>/api/orders/:id</code></td>
+                <td>3.1.3 ลบออร์เดอร์</td>
+                <td>ลบรายการคำสั่งซื้อตาม ID</td>
+            </tr>
+            <tr>
+                <td><span class="method-delete">DELETE</span></td>
+                <td><code>/api/orders/clear</code></td>
+                <td>3.2 ล้างข้อมูลทั้งหมด</td>
+                <td>ล้าง (ลบทั้งหมด) รายการสั่งซื้อที่จำลองทั้งหมด</td>
+            </tr>
+            <tr>
+                <td><span class="method-get">GET</span></td>
+                <td><code>/api/orders/nearby</code></td>
+                <td>3.3 ค้นหาระยะ 2 กม.</td>
+                <td>แสดงรายการสั่งซื้อทั้งหมดในระยะ 2 กิโลเมตร จากพิกัดที่กำหนด</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- ================= SECTION 3: DETAILED ENDPOINTS ================= -->
+    <h2 class="section-title">3. รายละเอียดและตัวอย่างการเรียกใช้งาน API</h2>
+
+    <!-- 2.2 Search Customer -->
+    <h3 style="font-size: 13px; color: #1e3a8a;">2.2 ค้นหาจากส่วนหนึ่งของชื่อ, นามสกุล</h3>
+    <p><strong>Endpoint:</strong> <code>GET /api/customers/search?q=สม</code></p>
+    <pre><code>curl -X GET "http://localhost:3000/api/customers/search?q=สม"</code></pre>
+    <p><strong>Response (200 OK):</strong></p>
+    <pre><code>{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "id": 1,
+      "first_name": "สมชาย",
+      "last_name": "เจริญศิลป์",
+      "phone": "081-234-5678",
+      "address": "คณะวิทยาการสารสนเทศ มมส. ขามเรียง",
+      "distance_km": 0.055
+    },
+    {
+      "id": 2,
+      "first_name": "สมศรี",
+      "last_name": "คำแก้ว",
+      "phone": "082-345-6789",
+      "address": "ตลาดน้อย มมส. ขามเรียง",
+      "distance_km": 0.276
+    }
+  ]
+}</code></pre>
+
+    <!-- 2.3 Nearby Customer -->
+    <h3 style="font-size: 13px; color: #1e3a8a; margin-top: 16px;">2.3 ค้นลูกค้าทั้งหมดในระยะ 1 กิโลเมตร จากพิกัดที่กำหนด (มมส. ขามเรียง)</h3>
+    <p><strong>Endpoint:</strong> <code>GET /api/customers/nearby?lat=16.2458&lng=103.2508&radius=1</code></p>
+    <pre><code>curl -X GET "http://localhost:3000/api/customers/nearby?lat=16.2458&lng=103.2508&radius=1"</code></pre>
+    <p><strong>Response (200 OK):</strong> แสดงลูกค้าที่อยู่ในระยะ &le; 1 KM เรียงตามระยะทางใกล้สุด</p>
+    <pre><code>{
+  "success": true,
+  "center": { "latitude": 16.2458, "longitude": 103.2508 },
+  "radius_km": 1,
+  "count": 9,
+  "data": [
+    {
+      "id": 1,
+      "first_name": "สมชาย",
+      "last_name": "เจริญศิลป์",
+      "address": "คณะวิทยาการสารสนเทศ มมส.",
+      "distance_km": 0.055,
+      "distance_meters": 55
+    },
+    {
+      "id": 4,
+      "first_name": "กานดา",
+      "last_name": "มีสุข",
+      "address": "อาคารบรมราชกุมารี มมส.",
+      "distance_km": 0.217,
+      "distance_meters": 217
+    },
+    {
+      "id": 2,
+      "first_name": "สมศรี",
+      "last_name": "คำแก้ว",
+      "address": "ตลาดน้อย มมส.",
+      "distance_km": 0.276,
+      "distance_meters": 276
+    }
+  ]
+}</code></pre>
+
+    <div class="page-break"></div>
+
+    <!-- 3.1 & 3.1.3 Orders -->
+    <h3 style="font-size: 13px; color: #1e3a8a;">3.1 จำลองรายการสั่งซื้อ 20-30 รายการ และจัดการจำนวนกล่อง</h3>
+    <p><strong>3.1 จำลองข้อมูล (Seed Orders):</strong> <code>POST /api/orders/seed?count=25</code></p>
+    <pre><code>curl -X POST "http://localhost:3000/api/orders/seed?count=25"</code></pre>
+
+    <p style="margin-top: 10px;"><strong>3.1.3 แก้ไขจำนวนกล่อง (Update Box Count):</strong> <code>PATCH /api/orders/1/box-count</code></p>
+    <pre><code>curl -X PATCH "http://localhost:3000/api/orders/1/box-count" \
+  -H "Content-Type: application/json" \
+  -d '{"box_count": 20}'</code></pre>
+    <p><strong>Response (200 OK):</strong></p>
+    <pre><code>{
+  "success": true,
+  "message": "Order #1 box count updated to 20",
+  "data": {
+    "id": 1,
+    "order_code": "ORD-20261004-7841-01",
+    "customer_id": 2,
+    "customer_name": "สมศรี คำแก้ว",
+    "box_count": 20,
+    "price_per_box": 150,
+    "total_price": 3000,
+    "status": "In Transit",
+    "distance_km": 0.276
+  }
+}</code></pre>
+
+    <!-- 3.2 Clear Orders -->
+    <h3 style="font-size: 13px; color: #1e3a8a; margin-top: 14px;">3.2 ล้าง (ลบทั้งหมด) รายการสั่งซื้อที่จำลองทั้งหมด</h3>
+    <p><strong>Endpoint:</strong> <code>DELETE /api/orders/clear</code></p>
+    <pre><code>curl -X DELETE "http://localhost:3000/api/orders/clear"</code></pre>
+    <pre><code>{
+  "success": true,
+  "message": "All orders have been cleared successfully. (25 orders deleted)",
+  "deleted_count": 25
+}</code></pre>
+
+    <!-- 3.3 Nearby Orders -->
+    <h3 style="font-size: 13px; color: #1e3a8a; margin-top: 14px;">3.3 แสดงรายการสั่งซื้อทั้งหมดในระยะ 2 กิโลเมตร จากพิกัดที่กำหนด (มมส. ขามเรียง)</h3>
+    <p><strong>Endpoint:</strong> <code>GET /api/orders/nearby?lat=16.2458&lng=103.2508&radius=2</code></p>
+    <pre><code>curl -X GET "http://localhost:3000/api/orders/nearby?lat=16.2458&lng=103.2508&radius=2"</code></pre>
+    <pre><code>{
+  "success": true,
+  "center": { "latitude": 16.2458, "longitude": 103.2508 },
+  "radius_km": 2,
+  "count": 20,
+  "data": [
+    {
+      "id": 18,
+      "order_code": "ORD-20261004-2580-18",
+      "customer_name": "สมชาย เจริญศิลป์",
+      "box_count": 8,
+      "total_price": 1200,
+      "notes": "ส่งหน้าคณะวิทยาการสารสนเทศ มมส.",
+      "distance_km": 0.055,
+      "distance_meters": 55
+    }
+  ]
+}</code></pre>
+
+    <div class="callout" style="margin-top: 16px;">
+        <strong>สูตรการคำนวณระยะทาง Haversine Formula:</strong><br>
+        การคำนวณใช้รัศมีเฉลี่ยโลก $R = 6,371\text{ km}$ แปลงพิกัด Degrees เป็น Radians แล้วคำนวณ Great-circle distance
+        ทำให้ได้ผลลัพธ์ระยะทางที่แม่นยำสูงทั้งในระยะ 1 กิโลเมตร และ 2 กิโลเมตร
+    </div>
+
+    <div style="margin-top: 30px; text-align: center; border-top: 1px solid #cbd5e1; padding-top: 16px;">
+        <p style="font-size: 13px; font-weight: bold; color: #1e3a8a;">--- สิ้นสุดเอกสารรายงาน ---</p>
+    </div>
+
+</body>
+
+</html>
